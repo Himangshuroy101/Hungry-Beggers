@@ -27,7 +27,7 @@
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/your-username/HungryBegger.git](https://github.com/your-username/HungryBegger.git)
+   git clone https://github.com/your-username/HungryBegger.git
    cd HungryBegger
 
 2. **Install dependencies:**
