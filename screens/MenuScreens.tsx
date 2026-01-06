@@ -215,7 +215,7 @@ useEffect(() => {
             const PATTERN = [0, 500, 200, 500]; 
             Vibration.vibrate(PATTERN);
             
-            Alert.alert("Lunch is Ready! 🍕", "The runner has arrived with the food!");
+            Alert.alert("Snack Attack! 🍕", "The runner has arrived with the snacks!");
           }
 
           setOrderStatus(newStatus);
@@ -329,7 +329,7 @@ const isLocked = orderStatus === 'At Store' || orderStatus === 'Food is Here';
           <View style={[styles.card, isLocked && { opacity: 0.6 }]}>
             <View>
               <Text style={styles.itemName}>{item.name}</Text>
-              <Text style={styles.itemPrice}>${item.price}</Text>
+              <Text style={styles.itemPrice}>₹{item.price}</Text>
             </View>
             
             <View style={styles.counterContainer}>

@@ -178,12 +178,28 @@ export default function HistoryScreen() {
     );
   };
 
+  // Inside HistoryScreen.tsx
+const sendNudge = async (item: any) => {
+  const { error } = await supabase
+    .from('debt_logs')
+    .upsert({ 
+      order_id: item.ids[0], // Reference the order
+      last_nudge_at: new Date().toISOString()
+    }, { onConflict: 'order_id' });
+
+  if (!error) {
+    Alert.alert("Nudge Sent!", `A reminder was logged for ${item.name}.`);
+  }
+};
+
   if (loading)
     return (
       <ActivityIndicator style={{ flex: 1 }} size="large" color="#2ecc71" />
     );
 
-  const isRunner = userId === currentRunnerId;
+// This splits the "ID:Name" string and compares only the ID part
+const runnerIdOnly = currentRunnerId.split(':')[0]; 
+const isRunner = userId === runnerIdOnly;
 
   return (
     <View style={styles.container}>
@@ -210,18 +226,28 @@ export default function HistoryScreen() {
               <View style={styles.info}>
                 <Text style={styles.name}>{item.name}</Text>
                 <Text style={styles.amount}>
-                  Owes: ${item.total.toFixed(2)}
+                  Owes: ₹{item.total.toFixed(2)}
                 </Text>
               </View>
 
-              {/* Conditional UI: Runner sees button, others see text */}
+              {/* Conditional UI: Runner sees Settle button, Others see Pending text */}
               {isRunner ? (
-                <TouchableOpacity
-                  onPress={() => markPaid(item)}
-                  style={styles.paidBtn}
-                >
-                  <Text style={styles.paidText}>Settled</Text>
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row' }}>
+                  <TouchableOpacity
+                    onPress={() => markPaid(item)}
+                    style={styles.paidBtn}
+                  >
+                    <Text style={styles.paidText}>Settle</Text>
+                  </TouchableOpacity>
+                  
+                  {/* Added Nudge Button for the Runner */}
+                  <TouchableOpacity 
+                    onPress={() => sendNudge(item)}
+                    style={[styles.paidBtn, { backgroundColor: '#f39c12', marginLeft: 8 }]}
+                  >
+                    <Ionicons name="notifications-outline" size={18} color="#fff" />
+                  </TouchableOpacity>
+                </View>
               ) : (
                 <View style={styles.pendingBadge}>
                   <Text style={styles.pendingText}>Pending</Text>

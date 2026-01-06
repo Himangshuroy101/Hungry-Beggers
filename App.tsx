@@ -15,10 +15,42 @@ import ProfileScreen from './screens/ProfileScreen';
 import ManageMenuScreen from './screens/ManageMenuScreen';
 import HistoryScreen from './screens/HistoryScreen';
 import ChatScreen from './screens/ChatScreen';
+import ResetPasswordScreen from './screens/ResetPasswordScreen';
+
 
 const Stack = createNativeStackNavigator();
 
 const Tab = createBottomTabNavigator();
+
+
+// 1. Create a "HomeTabs" component for your main app
+function HomeTabs() {
+  // Access the same isAdmin logic if needed, but only for visible tabs
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ color, size }) => {
+          let iconName: any;
+          if (route.name === 'Menu') iconName = 'fast-food';
+          else if (route.name === 'Summary') iconName = 'list';
+          else if (route.name === 'Chat') iconName = 'chatbubbles';
+          else if (route.name === 'History') iconName = 'time';
+          else if (route.name === 'Profile') iconName = 'person';
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#ff6347',
+        tabBarInactiveTintColor: 'gray',
+        headerTitleAlign: 'center',
+      })}
+    >
+      <Tab.Screen name="Menu" component={MenuScreen} options={{ title: 'Order Food' }} />
+      <Tab.Screen name="Summary" component={SummaryScreen} options={{ title: 'Store List' }} />
+      <Tab.Screen name="Chat" component={ChatScreen} options={{ title: 'Discussion' }} />
+      <Tab.Screen name="History" component={HistoryScreen} options={{ title: 'Debts' }} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'My Profile' }} />
+    </Tab.Navigator>
+  );
+}
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -31,6 +63,13 @@ export default function App() {
 
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (_event === 'PASSWORD_RECOVERY') {
+      // This event triggers when the user clicks the Reset Link
+      // You can now navigate them to your ResetPassword screen
+      console.log("User clicked reset link, redirecting...");
+      
+      // navigation.navigate('ResetPassword'); // If using a navigation ref
+    }
       setSession(session);
     });
 
@@ -47,6 +86,7 @@ export default function App() {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="SignUp" component={SignUpScreen} />
+          <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     );
@@ -59,44 +99,23 @@ export default function App() {
   const isAdmin = userEmail === 'himangshuroy05@gmail.com';
   return (
     <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-         tabBarIcon: ({ color, size }) => {
-      let iconName: any;
-      if (route.name === 'Menu') iconName = 'fast-food';
-      else if (route.name === 'Summary') iconName = 'list';
-      else if (route.name === 'Profile') iconName = 'person'; // Icon for Profile
-      else if (route.name === 'Manage') iconName = 'settings'; // Icon for Manage
-      else if (route.name === 'History') iconName = 'time'; // Icon for History
-      return <Ionicons name={iconName} size={size} color={color} />;
-    },
-    
-          tabBarActiveTintColor: '#ff6347',
-          tabBarInactiveTintColor: 'gray',
-          headerStyle: { backgroundColor: '#fff' },
-          headerTitleStyle: { fontWeight: 'bold', },
-          headerTitleAlign: 'center',
-        })}
-      >
-        <Tab.Screen name="Menu" component={MenuScreen} options={{ title: 'Order Food'}} />
-        <Tab.Screen name="Summary" component={SummaryScreen} options={{ title: 'Store List' }} />
-        {/* <Tab.Screen name='ManageMenu' component={ManageMenuScreen} options={{ title: 'Manage Menu' }} /> */}
-        {/* ONLY show Manage tab if the user is YOU */}
-        <Tab.Screen 
-  name="Chat" 
-  component={ChatScreen} 
-  options={{ 
-    title: 'Discussion',
-    tabBarIcon: ({ color, size }) => <Ionicons name="chatbubbles" size={size} color={color} />
-  }} 
-/>
-        {/* <Tab.Screen name='History' component={HistoryScreen} options={{ title: 'Debts' }} /> */}
-        {isAdmin && (
-          <Tab.Screen name="Manage" component={ManageMenuScreen} />
-        )}
+      <Stack.Navigator>
+        {/* Main App with Tabs */}
+        <Stack.Screen 
+          name="HomeTabs" 
+          component={HomeTabs} 
+          options={{ headerShown: false }} 
+        />
         
-        <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'My Profile' }} />
-      </Tab.Navigator>
+        {/* Admin Screens (No Bottom Bar here!) */}
+        {isAdmin && (
+          <Stack.Screen 
+            name="Manage" 
+            component={ManageMenuScreen} 
+            options={{ title: 'Manage Menu' }} 
+          />
+        )}
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }

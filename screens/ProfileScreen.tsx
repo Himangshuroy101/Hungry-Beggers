@@ -2,9 +2,31 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import { supabase } from '../lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
+import { Session } from '@supabase/supabase-js';
+import { useNavigation } from '@react-navigation/native'; // Add this
 
 export default function ProfileScreen() {
   const [profile, setProfile] = useState<{name: string, email: string, designation: string} | null>(null);
+  const navigation = useNavigation<any>();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const [session, setSession] = useState<Session | null>(null);
+  
+    useEffect(() => {
+      // Check initial session
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setSession(session);
+      });
+  
+      // Listen for auth changes
+      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+        setSession(session);
+      });
+  
+      return () => {
+        authListener.subscription.unsubscribe();
+      };
+    }, []);
 
   useEffect(() => {
     getProfile();
@@ -18,6 +40,11 @@ export default function ProfileScreen() {
         email: user.email || '',
         designation: user.user_metadata?.designation || 'No Designation',
       });
+      
+      // Check if email matches admin email
+      if (user.email === 'himangshuroy05@gmail.com') {
+        setIsAdmin(true);
+      }
     }
   }
 
@@ -46,11 +73,26 @@ export default function ProfileScreen() {
             <Text style={styles.infoText}>{profile.email}</Text>
           </View>
         </View>
+        {/* NEW: Admin Manage Menu Button */}
+        {isAdmin && (
+          <TouchableOpacity 
+            style={styles.adminButton} 
+            onPress={() => navigation.navigate('Manage')}
+          >
+            <Ionicons name="restaurant-outline" size={20} color="#fff" style={{marginRight: 10}} />
+            <Text style={styles.buttonText}>Manage Office Menu</Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
           <Ionicons name="log-out-outline" size={20} color="#fff" style={{marginRight: 10}} />
           <Text style={styles.signOutText}>Sign Out</Text>
         </TouchableOpacity>
+      </View>
+      <View style={{ flex: 1 }} >
+        <Text style={{ fontSize: 12, color: '#aaa', textAlign: 'center', marginTop: 20 }}>
+          Logged in as: {profile.email}
+        </Text>
       </View>
     </View>
   );
@@ -67,5 +109,17 @@ const styles = StyleSheet.create({
   infoRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
   infoText: { marginLeft: 10, fontSize: 16, color: '#666' },
   signOutButton: { flexDirection: 'row', backgroundColor: '#ff4d4d', paddingVertical: 12, paddingHorizontal: 30, borderRadius: 25, alignItems: 'center' },
-  signOutText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+  signOutText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  adminButton: { 
+    flexDirection: 'row', 
+    backgroundColor: '#2ecc71', // Green for management
+    paddingVertical: 12, 
+    paddingHorizontal: 25, 
+    borderRadius: 25, 
+    alignItems: 'center',
+    marginBottom: 15, // Space above sign out
+    width: '100%',
+    justifyContent: 'center'
+  },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });

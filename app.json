@@ -2,6 +2,7 @@
   "expo": {
     "name": "HungryBegger",
     "slug": "HungryBegger",
+    "scheme": "hungrybeggars",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/Final_logo_sq.png",
@@ -16,6 +17,8 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.himangshu.hungrybegger", 
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/Final_logo_sq.png",
         "backgroundColor": "#ffffff"

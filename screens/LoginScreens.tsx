@@ -7,12 +7,44 @@ export default function LoginScreen({ navigation }: any) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function handleSignIn() {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) Alert.alert("Login Failed", error.message);
-    setLoading(false);
+  // async function handleSignIn() {
+  //   setLoading(true);
+  //   const { error } = await supabase.auth.signInWithPassword({ email, password });
+  //   if (error) Alert.alert("Login Failed", error.message);
+  //   setLoading(false);
+  // }
+ async function handleSignIn() {
+  setLoading(true);
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  
+  if (error) {
+    if (error.message.includes("Email not confirmed")) {
+      Alert.alert("Verify Email", "You haven't clicked the link in your email yet!");
+    } else {
+      Alert.alert("Login Failed", error.message);
+    }
   }
+  setLoading(false);
+}
+
+// Inside handleForgotPassword function
+async function handleForgotPassword() {
+  if (!email) {
+    Alert.alert("Error", "Please enter your office email first.");
+    return;
+  }
+  
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    // This MUST match the Redirect URL in your Supabase Dashboard
+    redirectTo: 'hungrybeggars://reset-password', 
+  });
+
+  if (error) {
+    Alert.alert("Error", error.message);
+  } else {
+    Alert.alert("Email Sent 📧", "Check your inbox for the reset link.");
+  }
+}
 
   async function handleSignUp() {
     setLoading(true);
@@ -28,14 +60,17 @@ export default function LoginScreen({ navigation }: any) {
       
       <TextInput 
         style={styles.input} 
-        placeholder="Office Email" 
+        placeholder="Office Email"
+        placeholderTextColor="#888" 
+        keyboardType="email-address"
         value={email} 
         onChangeText={setEmail}
         autoCapitalize="none"
       />
       <TextInput 
         style={styles.input} 
-        placeholder="Password" 
+        placeholder="Password"
+        placeholderTextColor="#888" 
         value={password} 
         onChangeText={setPassword} 
         secureTextEntry 
@@ -43,6 +78,12 @@ export default function LoginScreen({ navigation }: any) {
 
       <TouchableOpacity style={styles.button} onPress={handleSignIn} disabled={loading}>
         {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Sign In</Text>}
+      </TouchableOpacity>
+
+
+      
+      <TouchableOpacity onPress={handleForgotPassword}>
+        <Text style={styles.linkText}>Forgot Password?</Text>
       </TouchableOpacity>
 
       {/* UPDATE THIS BUTTON: Change it from handleSignUp to navigation.navigate */}

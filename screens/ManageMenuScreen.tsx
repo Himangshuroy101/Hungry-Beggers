@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Alert } from 'react-native';
 import { supabase } from '../lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native'; // Add this import
 
 export default function ManageMenuScreen() {
+  const navigation = useNavigation(); // Initialize navigation
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [menuItems, setMenuItems] = useState<any[]>([]);
@@ -39,11 +41,19 @@ export default function ManageMenuScreen() {
 
   return (
     <View style={styles.container}>
+      {/* NEW: Back Button Header */}
+      <TouchableOpacity 
+        style={styles.backButton} 
+        onPress={() => navigation.goBack()}
+      >
+        <Ionicons name="arrow-back" size={24} color="#333" />
+        <Text style={styles.backText}>Back to Profile</Text>
+      </TouchableOpacity>
       <Text style={styles.title}>Update Office Menu ✍️</Text>
       
       <View style={styles.inputRow}>
-        <TextInput style={[styles.input, { flex: 2 }]} placeholder="Item Name" value={name} onChangeText={setName} />
-        <TextInput style={[styles.input, { flex: 1 }]} placeholder="Price" value={price} keyboardType="numeric" onChangeText={setPrice} />
+        <TextInput style={[styles.input, { flex: 2 }]} placeholder="Item Name" placeholderTextColor={'#888'} value={name} onChangeText={setName} />
+        <TextInput style={[styles.input, { flex: 1 }]} placeholder="Price" placeholderTextColor={'#888'} value={price} keyboardType="numeric" onChangeText={setPrice} />
         <TouchableOpacity style={styles.addBtn} onPress={addItem}>
           <Ionicons name="add" size={30} color="#fff" />
         </TouchableOpacity>
@@ -72,5 +82,18 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: '#ddd', padding: 10, borderRadius: 8, marginRight: 5 },
   addBtn: { backgroundColor: '#2ecc71', justifyContent: 'center', padding: 10, borderRadius: 8 },
   itemRow: { flexDirection: 'row', justifyContent: 'space-between', padding: 15, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  itemText: { fontSize: 16 }
+  itemText: { fontSize: 16 },
+  // NEW: Back Button Styles
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    marginTop: -10, // Adjust based on your status bar height
+  },
+  backText: {
+    fontSize: 16,
+    marginLeft: 8,
+    color: '#333',
+    fontWeight: '500',
+  },
 });

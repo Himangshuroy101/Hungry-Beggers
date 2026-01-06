@@ -41,6 +41,37 @@ export default function SignUpScreen({ navigation }: any) {
 //     }
 //   }
 
+// async function handleSignUp() {
+//   if (!email || !password || !fullName) {
+//     Alert.alert("Error", "Please fill in Name, Email, and Password.");
+//     return;
+//   }
+
+//   setLoading(true);
+//   const { data, error } = await supabase.auth.signUp({
+//     email,
+//     password,
+//     options: {
+//       data: {
+//         full_name: fullName,
+//         designation: designation,
+//       },
+//     },
+//   });
+
+//   setLoading(false);
+
+//   if (error) {
+//     Alert.alert("Sign Up Failed", error.message);
+//   } else if (data.session) {
+//     // This will trigger if "Confirm Email" is OFF
+//     Alert.alert("Success!", "Account created. You are now logged in!");
+//     // App.tsx will detect the session and switch to the Menu automatically
+//   } else {
+//     Alert.alert("Check Email", "Please verify your email to continue.");
+//   }
+// }
+
 async function handleSignUp() {
   if (!email || !password || !fullName) {
     Alert.alert("Error", "Please fill in Name, Email, and Password.");
@@ -66,9 +97,13 @@ async function handleSignUp() {
   } else if (data.session) {
     // This will trigger if "Confirm Email" is OFF
     Alert.alert("Success!", "Account created. You are now logged in!");
-    // App.tsx will detect the session and switch to the Menu automatically
   } else {
-    Alert.alert("Check Email", "Please verify your email to continue.");
+    // This triggers when "Confirm Email" is ON (data.session will be null)
+    Alert.alert(
+      "Verify Your Email 📧", 
+      "A verification link has been sent to your email. Please click it to activate your account.",
+      [{ text: "OK", onPress: () => navigation.navigate('Login') }]
+    );
   }
 }
 
@@ -78,7 +113,8 @@ async function handleSignUp() {
       
       <TextInput 
         style={styles.input} 
-        placeholder="Full Name" 
+        placeholder="Full Name"
+        placeholderTextColor="#888" 
         value={fullName} 
         onChangeText={setFullName}
       />
@@ -86,13 +122,17 @@ async function handleSignUp() {
       <TextInput 
         style={styles.input} 
         placeholder="Designation (e.g. Developer, HR)" 
+        placeholderTextColor="#888"
+
         value={designation} 
         onChangeText={setDesignation}
       />
 
       <TextInput 
         style={styles.input} 
-        placeholder="Office Email" 
+        placeholder="Office Email"
+        placeholderTextColor="#888" 
+        keyboardType="email-address" 
         value={email} 
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -100,7 +140,8 @@ async function handleSignUp() {
 
       <TextInput 
         style={styles.input} 
-        placeholder="Password" 
+        placeholder="Password"
+        placeholderTextColor="#888" 
         value={password} 
         onChangeText={setPassword} 
         secureTextEntry 
