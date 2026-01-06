@@ -36,11 +36,11 @@
 
 3. **Configure Environment:** Ensure your lib/supabase.ts contains your specific Supabase URL and Anon Key.
 
-4.**Build Android APK Locally:**
-```bash
-npx expo prebuild
-cd android
-./gradlew assembleRelease
+4. **Build Android APK Locally:**
+   ```bash
+   npx expo prebuild
+   cd android
+   ./gradlew assembleRelease
 
 ### 📦 Build Output
 
